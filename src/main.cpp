@@ -1,73 +1,87 @@
-#include <Arduino.h>
-#include <hidboot.h>
+#include <usbhid.h>
 #include <usbhub.h>
+#include <hiduniversal.h>
+#include <hidboot.h>
 #include <SPI.h>
 
-int msg1[100];
-int msg1ptr = 0;
-
-int msgCount = 0;
-
-String msg1Prepend = "2390N";
-int finishingMsg[] = {9, 9, 9, 111, 176, 176};
-
-#define DELAYTIME 50
-
-class KbdRptParser : public KeyboardReportParser {
+class MyParser : public HIDReportParser {
+  public:
+    MyParser();
+    void Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
   protected:
-    void OnKeyPressed(uint8_t key);
+    uint8_t KeyToAscii(bool upper, uint8_t mod, uint8_t key);
+    virtual void OnKeyScanned(bool upper, uint8_t mod, uint8_t key);
+    virtual void OnScanFinished();
 };
 
-USB     Usb;
-//USBHub     Hub(&Usb);
-HIDBoot<USB_HID_PROTOCOL_KEYBOARD>    HidKeyboard(&Usb);
+MyParser::MyParser() {}
 
-KbdRptParser Prs;
+void MyParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
+  // If error or empty, return
+  if (buf[2] == 1 || buf[2] == 0) return;
 
-void KbdRptParser::OnKeyPressed(uint8_t key) {
-    Serial.print("ASCII: ");
-    Serial.println((char)key);
+  for (uint8_t i = 7; i >= 2; i--) {
+    // If empty, skip
+    if (buf[i] == 0) continue;
 
-    if (msgCount == 0) {
-        if ((char)key != 9) {
-            msg1[msg1ptr++] = (char)key;
-        } else {
-            Serial.print(msg1Prepend);
-            for (int i = 0; i <= msg1ptr; i++) {
-                Serial.print(msg1[i]);
-                delay(DELAYTIME);
-            }
-            Serial.print("tab");
-            msgCount++;
-        }
+    // If enter signal emitted, scan finished
+    if (buf[i] == UHS_HID_BOOT_KEY_ENTER) {
+      OnScanFinished();
     }
 
-    if (msgCount == 1) {
-        if ((char)key != 9) {
-            Serial.print((char)key);
-        } else {
-            for (unsigned int i = 0; i <= sizeof(finishingMsg); i++) {
-                Serial.print(finishingMsg[i]);
-                delay(DELAYTIME);
-            }
-            msgCount++;
-        }
+    // If not, continue normally
+    else {
+      // If bit position not in 2, it's uppercase words
+      OnKeyScanned(i > 2, buf, buf[i]);
     }
-};
+
+    return;
+  }
+}
+
+uint8_t MyParser::KeyToAscii(bool upper, uint8_t mod, uint8_t key) {
+  // Letters
+  if (VALUE_WITHIN(key, 0x04, 0x1d)) {
+    if (upper) return (key - 4 + 'A');
+    else return (key - 4 + 'a');
+  }
+
+  // Numbers
+  else if (VALUE_WITHIN(key, 0x1e, 0x27)) {
+    return ((key == UHS_HID_BOOT_KEY_ZERO) ? '0' : key - 0x1e + '1');
+  }
+
+  return 0;
+}
+
+void MyParser::OnKeyScanned(bool upper, uint8_t mod, uint8_t key) {
+  uint8_t ascii = KeyToAscii(upper, mod, key);
+  Serial.print(ascii);
+}
+
+void MyParser::OnScanFinished() {
+  Serial.println(" - Finished");
+}
+
+USB          Usb;
+USBHub       Hub(&Usb);
+HIDUniversal Hid(&Usb);
+MyParser     Parser;
 
 void setup() {
-    Serial.begin(9600);
-    while (!Serial);
-    Serial.println("Start");
+  Serial.begin( 115200 );
+  Serial.println("Start");
 
-    if (Usb.Init() == -1)
-        Serial.println("OSC did not start.");
+  if (Usb.Init() == -1) {
+    Serial.println("OSC did not start.");
+  }
 
-  delay(200);
+  delay( 200 );
 
-  HidKeyboard.SetReportParser(0, &Prs);
+  Hid.SetReportParser(0, &Parser);
 }
 
 void loop() {
-    Usb.Task();
+  Usb.Task();
 }
+
