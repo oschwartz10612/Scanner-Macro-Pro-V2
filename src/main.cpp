@@ -6,6 +6,7 @@
 #include <Keyboard.h>
 
 String msg;
+int delayTime = 50;
 
 class MyParser : public HIDReportParser {
   public:
@@ -66,7 +67,6 @@ void MyParser::OnScanFinished() {
   //Check if it is a barcode by looking at the first two numbers
   bool barcode = false;
   for (int i = 0; i < 2; i++) {
-    Serial.println(msg[i]);
     if (String(msg[i]) == "0") {
       barcode = true;
     } else {
@@ -75,13 +75,27 @@ void MyParser::OnScanFinished() {
   }
   
   if(barcode) {
-    Serial.print("tab");
-    Serial.print("2390N");
-    Serial.print(msg);
-    Serial.println("tab");
+    Keyboard.write(9); //TAB
+    delay(delayTime);
+    Keyboard.print("2390N");
+    delay(delayTime);
+    Keyboard.print(msg);
+    delay(delayTime);
+    Keyboard.write(9); //TAB
   } else {
-    Serial.print(msg);
-    Serial.println("finish");
+    Keyboard.print(msg);
+    delay(delayTime);
+    Keyboard.write(9); //TAB
+    delay(delayTime);
+    Keyboard.write(9); //TAB
+    delay(delayTime);
+    Keyboard.write(9); //TAB
+    delay(delayTime);
+    Keyboard.write(111); //o
+    delay(delayTime);
+    Keyboard.write(176); //Enter
+    delay(delayTime);
+    Keyboard.write(176); //Enter
   }
 
   msg = "";
@@ -93,12 +107,9 @@ HIDUniversal Hid(&Usb);
 MyParser     Parser;
 
 void setup() {
-  Serial.begin( 115200 );
-  Serial.println("Start");
+  Keyboard.begin();
 
-  if (Usb.Init() == -1) {
-    Serial.println("OSC did not start.");
-  }
+  if (Usb.Init() == -1) {Keyboard.print("No Scanner Detected");}
 
   delay( 200 );
 
@@ -108,5 +119,4 @@ void setup() {
 void loop() {
   Usb.Task();
 }
-
 
