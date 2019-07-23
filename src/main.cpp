@@ -3,6 +3,9 @@
 #include <hiduniversal.h>
 #include <hidboot.h>
 #include <SPI.h>
+#include <Keyboard.h>
+
+String msg;
 
 class MyParser : public HIDReportParser {
   public:
@@ -56,11 +59,32 @@ uint8_t MyParser::KeyToAscii(bool upper, uint8_t mod, uint8_t key) {
 
 void MyParser::OnKeyScanned(bool upper, uint8_t mod, uint8_t key) {
   uint8_t ascii = KeyToAscii(upper, mod, key);
-  Serial.print(ascii);
+  msg += (char)ascii;
 }
 
 void MyParser::OnScanFinished() {
-  Serial.println(" - Finished");
+  //Check if it is a barcode by looking at the first two numbers
+  bool barcode = false;
+  for (int i = 0; i < 2; i++) {
+    Serial.println(msg[i]);
+    if (String(msg[i]) == "0") {
+      barcode = true;
+    } else {
+      barcode = false;
+    }
+  }
+  
+  if(barcode) {
+    Serial.print("tab");
+    Serial.print("2390N");
+    Serial.print(msg);
+    Serial.println("tab");
+  } else {
+    Serial.print(msg);
+    Serial.println("finish");
+  }
+
+  msg = "";
 }
 
 USB          Usb;
@@ -84,4 +108,5 @@ void setup() {
 void loop() {
   Usb.Task();
 }
+
 
