@@ -6,7 +6,7 @@
 #include <Keyboard.h>
 
 #include <Parser.h>
-#include <finishSequences.h>
+#include <Scripts.h>
 
 String msg;
 
