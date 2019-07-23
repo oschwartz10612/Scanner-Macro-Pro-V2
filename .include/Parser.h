@@ -1,6 +1,6 @@
-class MyParser : public HIDReportParser {
+class ScanParser : public HIDReportParser {
   public:
-    MyParser();
+    ScanParser();
     void Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
   protected:
     uint8_t KeyToAscii(bool upper, uint8_t mod, uint8_t key);
@@ -8,9 +8,9 @@ class MyParser : public HIDReportParser {
     virtual void OnScanFinished();
 };
 
-MyParser::MyParser() {}
+ScanParser::ScanParser() {}
 
-void MyParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
+void ScanParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
   // If error or empty, return
   if (buf[2] == 1 || buf[2] == 0) return;
 
@@ -33,7 +33,7 @@ void MyParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
   }
 }
 
-uint8_t MyParser::KeyToAscii(bool upper, uint8_t mod, uint8_t key) {
+uint8_t ScanParser::KeyToAscii(bool upper, uint8_t mod, uint8_t key) {
   // Letters
   if (VALUE_WITHIN(key, 0x04, 0x1d)) {
     if (upper) return (key - 4 + 'A');
