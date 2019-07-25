@@ -7,7 +7,7 @@
 
 #include <Scripts.h> //User scripts
 
-String msg;
+String msg = "";
 
 class ScanParser : public HIDReportParser {
   public:
@@ -65,8 +65,11 @@ void ScanParser::OnKeyScanned(bool upper, uint8_t mod, uint8_t key) {
 }
 
 void ScanParser::OnScanFinished() {
-  //barcodeAndId(msg);
-  FCPSON_finish(msg);
+  if(barcodeAndId(msg)) {
+    msg = "";
+  } else {
+    Keyboard.end();
+  }
 }
 
 USB          Usb;
