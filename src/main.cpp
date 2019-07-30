@@ -1,11 +1,5 @@
-#include <usbhid.h>
-#include <usbhub.h>
-#include <hiduniversal.h>
-#include <hidboot.h>
-#include <SPI.h>
-#include <Keyboard.h>
-
-#include <Scripts.h> //User scripts
+#include <includes.h>
+#include <scripts/rackLocationFCPSON.h> //User script
 
 String msg = "";
 
@@ -65,7 +59,7 @@ void ScanParser::OnKeyScanned(bool upper, uint8_t mod, uint8_t key) {
 }
 
 void ScanParser::OnScanFinished() {
-  if(rackLocaton(msg)) {
+  if(script(msg)) {
     msg = "";
   } else {
     Keyboard.end();
