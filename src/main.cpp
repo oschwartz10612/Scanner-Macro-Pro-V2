@@ -65,7 +65,7 @@ void ScanParser::OnKeyScanned(bool upper, uint8_t mod, uint8_t key) {
 }
 
 void ScanParser::OnScanFinished() {
-  if(barcodeAndId(msg)) {
+  if(rackLocaton(msg)) {
     msg = "";
   } else {
     Keyboard.end();
