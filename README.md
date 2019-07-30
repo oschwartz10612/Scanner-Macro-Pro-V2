@@ -13,3 +13,5 @@ Clone this repo.
 Pick a script or make your own in the script folder.
 
 In main.cpp, update the include statement to use your script.
+
+Run upload.bat
