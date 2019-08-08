@@ -1,5 +1,5 @@
 #include <includes.h>
-#include <scripts/rackLocationFCPSON.h> //User script
+#include <scripts/distribution.h> //User script
 
 String msg = "";
 
