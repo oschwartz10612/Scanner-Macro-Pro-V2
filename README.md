@@ -11,7 +11,7 @@ Download the repository.
 
 ## How to pick a script?
 
-In the src/main.cpp file change the .h file in the following line to one of the below.
+In the `src/main.cpp` file change the `.h` file in the following line to one of the below.
 
 ```cpp
 #include <scripts/distribution.h> //User script
@@ -29,10 +29,10 @@ In the src/main.cpp file change the .h file in the following line to one of the 
 
 `rackLocationLOANER.h`
 
-Short descriptions of the scripts can be found at the top of the scripts in the src/scripts folder.
+Short descriptions of the scripts can be found at the top of the scripts in the `src/scripts` folder.
 
 ## How to upload?
 
-Save main.cpp.
+Save `main.cpp`.
 
 Run upload.bat with your computer connected to the Arduino (bottom) board.
