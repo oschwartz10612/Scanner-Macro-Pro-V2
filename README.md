@@ -5,7 +5,7 @@ Takes USB input from a barcode scanner and sends the message to the computer wit
 [![Build Status](https://travis-ci.com/oschwartz10612/Scanner-Macro-Pro-V2.svg?branch=master)](https://travis-ci.org/oschwartz10612/Scanner-Macro-Pro-V2)
 
 ## Install Dependencies
-Download and install [platformio](https://platformio.org/install/cli).
+Download and install [platformio](https://docs.platformio.org/en/latest/core/installation.html).
 
 Download the repository.
 
